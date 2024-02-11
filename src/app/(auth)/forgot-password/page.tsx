@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +12,24 @@ export default function ForgotPassword() {
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
+
+    axios
+      .post('/api/auth/forgot-password', { email: email })
+      .then((res) => {
+        setLoading(false);
+        const response = res.data;
+        if (response.status == 200) {
+          toast.success(response.message, { theme: 'colored' });
+        } else if (response.status == 404) {
+          setErrors(response.errors);
+        } else if (response.status == 500) {
+          toast.success(response.message, { theme: 'colored' });
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log('The error is', err);
+      });
   };
 
   return (

@@ -26,6 +26,11 @@ const userSchema = new Schema(
       default: 'user',
       enum: ['user', 'admin'],
     },
+    password_reset_token: {
+      required: false,
+      type: Schema.Types.String,
+      trim: true,
+    },
   },
   {
     timestamps: true,
