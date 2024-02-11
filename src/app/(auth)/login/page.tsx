@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import Toast from '@/components/Toast';
 import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
+import axios from 'axios';
+import { signIn } from 'next-auth/react';
 
 export default function SignInOne() {
   const searchParam = useSearchParams();
@@ -20,27 +21,49 @@ export default function SignInOne() {
 
   useEffect(() => {
     console.log('The query is', searchParam.get('error'));
-  }, []);
+  }, [searchParam]);
 
   //   * Submit the data
   const submitForm = async () => {
     setLoading(true);
+    axios
+      .post('/api/auth/login', authData)
+      .then((res) => {
+        setLoading(false);
+        const response = res.data;
+        console.log('The response is ', response);
+        if (response.status == 200) {
+          console.log('The user signed in', response);
+          signIn('credentials', {
+            email: authData.email,
+            password: authData.password,
+            callbackUrl: '/',
+            redirect: true,
+          });
+        } else if (response.status == 400) {
+          setError(response?.errors);
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log('Error is', err);
+      });
   };
 
   // * Github signin
   const githubSignIn = async () => {
-    // await signIn("github", {
-    //   callbackUrl: "/",
-    //   redirect: true,
-    // });
+    await signIn('github', {
+      callbackUrl: '/',
+      redirect: true,
+    });
   };
 
   // * Google login
   const googleLogin = async () => {
-    // await signIn("google", {
-    //   callbackUrl: "/",
-    //   redirect: true,
-    // });
+    await signIn('google', {
+      callbackUrl: '/',
+      redirect: true,
+    });
   };
 
   return (

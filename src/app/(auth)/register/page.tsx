@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
+import axios from 'axios';
+import { signIn } from 'next-auth/react';
 
 export default function SignUp() {
   const router = useRouter();
@@ -21,22 +23,42 @@ export default function SignUp() {
 
   const submitForm = async () => {
     setLoading(true);
-    console.log('The payload is', userState);
+
+    try {
+      const { data } = await axios.post('/api/auth/register', userState);
+
+      if (data?.status === 200) {
+        setLoading(false);
+        setUserState({
+          email: '',
+          password: '',
+          name: '',
+          password_confirmation: '',
+        });
+        router.push(`/login?message=${data?.message}`);
+      } else {
+        setError(data?.errors);
+      }
+    } catch (error) {
+      console.log('🚀 ~ submitForm ~ error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // * Github signin
   const githubSignIn = () => {
-    // signIn("github", {
-    //   callbackUrl: "/",
-    // });
+    signIn('github', {
+      callbackUrl: '/',
+    });
   };
 
   // * Google login
   const googleLogin = async () => {
-    // await signIn("google", {
-    //   callbackUrl: "/",
-    //   redirect: true,
-    // });
+    await signIn('google', {
+      callbackUrl: '/',
+      redirect: true,
+    });
   };
 
   return (
