@@ -17,6 +17,7 @@ export default function ResetPassword({
     cpassword: '',
   });
   const [loading, setLoading] = useState(false);
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -34,12 +35,14 @@ export default function ResetPassword({
         } else if (response.status == 200) {
           toast.success(response.message, { theme: 'colored' });
         }
+        setLoading(false);
       })
       .catch((err) => {
         setLoading(false);
         console.log('err..', err);
       });
   };
+
   return (
     <>
       <ToastContainer />
